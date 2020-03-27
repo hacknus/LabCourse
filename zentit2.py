@@ -24,12 +24,13 @@ def zenit(steps_t = 800*24,delta_t = 60*60):
 			omega[i] = zx
 		else:
 			omega[i] = 90
+	return omega
 
 
 # USAGE:
 # from zenit2 import zenit
 # 
-# omeag = zenit()
+# omega = zenit()
 
 
 if __name__ == "__main__":
