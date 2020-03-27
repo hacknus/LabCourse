@@ -4,7 +4,7 @@ from matplotlib.pyplot import figure
 import scipy.integrate as integrate
 import math
 from numpy.linalg import inv
-from zentit2 import zenit
+from zentit2 import zenit, zenit_value
 
 number_z=1000
 number_t=24
