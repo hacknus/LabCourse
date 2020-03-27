@@ -28,7 +28,7 @@ def zenit(steps_t = 800*24,delta_t = 60*60):
 
 
 # USAGE:
-# from zenit2 import zenit
+# from zentit2 import zenit
 # 
 # omega = zenit()
 
