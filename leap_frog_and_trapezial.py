@@ -7,24 +7,29 @@ from numpy.linalg import inv
 from zentit2 import zenit, zenit_value
 
 
-max_t=10    #[d]
-number_t=10*24
+max_t=365*3    #[d]
+number_t=365*24
 delta_t=max_t*24*3600/number_t #[s]
+max_t_show=max_t
+min_t_show=0
 
-max_z=10   #[m]
-number_z=1000
+
+
+max_z=15   #[m]
+number_z=10
 delta_z=max_z/number_z #[m]
+max_z_show=max_z-1
 
 
-a=0.3
+a=0.6
 S_0=1367
-epsilon=0.6
+epsilon=0.92
 sigma=5.67*1e-8
 T_res=10+273.15
 
-c=890               #granit
-rho=2750
-k=2.9
+c=1.84*10**3    #890               #granit
+rho=2.04*10**3    #2750
+k=6   #2.9
 K=k/(c*rho)
 r=K*delta_t/(delta_z)**2
 
@@ -82,18 +87,6 @@ for i in np.arange(1,number_z):
 B_leap_iso[0][0]=1
 
 C_leap_iso=C_leap
-print(A_leap_iso)
-print(A_leap)
-print(B_leap_iso)
-print(B_leap)
-###################################################################3
-A_leap_iso=A_leap
-A_leap_iso[0]=A_trap_iso[0]
-
-B_leap_iso=B_leap
-B_leap_iso[0]=B_trap_iso[0]
-
-C_leap_iso=C_trap_iso
 #############################################################
 def result(A,B,C):
     T=np.zeros((number_t,number_z))
@@ -104,8 +97,76 @@ def result(A,B,C):
         T[i+1][:]=np.dot(invB,np.dot(A,T[i][:])-C)
     return T
 #####################################################################
-figure(figsize=(9, 9))
-plt.matshow(np.delete(result(A_trap_iso,B_trap_iso,C_trap_iso).transpose(),number_z-1,0))
-plt.colorbar()
+max_z_show_steps=int(max_z_show/max_z*number_z)
+max_t_show_steps=int(max_t_show/max_t*number_t)
+min_t_show_steps=int(min_t_show/max_t*number_t)
+
+R0=result(A_trap,B_trap,C_trap).transpose()
+R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+for j in np.arange(max_z_show_steps):
+    for i in np.arange(max_t_show_steps-min_t_show_steps):
+        R[j][i]=R0[j][i+min_t_show_steps]
+plt.matshow(R)
+plt.title('Trapezoidal')
+plt.yticks(np.arange(max_z_show+1)*number_z/max_z,np.arange(max_z_show+1))
+plt.xticks(np.arange(max_t_show-min_t_show+1)*number_t/max_t,np.arange(min_t_show,max_t_show+1))
+plt.xlabel('time [d]')
+plt.ylabel('depth [m]')
+plt.colorbar().set_label('Temperature [K]')
+plt.show()        
+T_trap=R0[0]
+
+R0=result(A_trap_iso,B_trap_iso,C_trap_iso).transpose()
+R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+for j in np.arange(max_z_show_steps):
+    for i in np.arange(max_t_show_steps-min_t_show_steps):
+        R[j][i]=R0[j][i+min_t_show_steps]
+plt.matshow(R)
+plt.title('Trapezoidal Iso')
+plt.yticks(np.arange(max_z_show+1)*number_z/max_z,np.arange(max_z_show+1))
+plt.xticks(np.arange(max_t_show-min_t_show+1)*number_t/max_t,np.arange(min_t_show,max_t_show+1))
+plt.xlabel('time [d]')
+plt.ylabel('depth [m]')
+plt.colorbar().set_label('Temperature [K]')
+plt.show()        
+T_trap_iso=R0[0]
+
+R0=result(A_leap,B_leap,C_leap).transpose()
+R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+for j in np.arange(max_z_show_steps):
+    for i in np.arange(max_t_show_steps-min_t_show_steps):
+        R[j][i]=R0[j][i+min_t_show_steps]
+plt.matshow(R)
+plt.title('Leap-Frog')
+plt.yticks(np.arange(max_z_show+1)*number_z/max_z,np.arange(max_z_show+1))
+plt.xticks(np.arange(max_t_show-min_t_show+1)*number_t/max_t,np.arange(min_t_show,max_t_show+1))
+plt.xlabel('time [d]')
+plt.ylabel('depth [m]')
+plt.colorbar().set_label('Temperature [K]')
+plt.show()        
+T_leap=R0[0]
+
+R0=result(A_leap_iso,B_leap_iso,C_leap_iso).transpose()
+R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+for j in np.arange(max_z_show_steps):
+    for i in np.arange(max_t_show_steps-min_t_show_steps):
+        R[j][i]=R0[j][i+min_t_show_steps]
+plt.matshow(R)
+plt.title('Leap-Frog Iso')
+plt.yticks(np.arange(max_z_show)*number_z/max_z,np.arange(max_z_show))
+plt.xticks(np.arange(max_t_show-min_t_show)*number_t/max_t,np.arange(min_t_show,max_t_show))
+plt.xlabel('time [d]')
+plt.ylabel('depth [m]')
+plt.colorbar().set_label('Temperature [K]')
+plt.show()        
+T_leap_iso=R0[0]
+
+
+plt.plot(T_leap, label='Leap-Frog')
+plt.plot(T_trap_iso, label='Isolated')
+plt.plot(T_trap, label='Trapezoidal')
+plt.title('Surface Temperature $T_{0}$')
+plt.xlabel('time [d]')
+plt.ylabel('Temperature [K]')
+plt.legend()
 plt.show()
-plt.plot(result(A_leap_iso,B_leap_iso,C_leap_iso).transpose()[0])
