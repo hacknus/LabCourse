@@ -11,48 +11,67 @@ class Simulation:
 
 	def __init__(self):
 		self.x = 10
-		self.dx = 0.01 #m
-		self.t = 24*100 #days
-		self.dt = 60*60 #s
+		self.dx = 1 #m
+		self.t = 100 #1*360 #days
+		self.dt = 1 #days
+		self.steps = 100
 
 		self.lower_boundary = 15 #degrees
 		
 		#soil
 		self.a = 0.17 
 		self.epsilon = 0.92 
-		self.rho = 2.04
-		self.c_p = 1.84
+		self.rho = 2.04e3
+		self.c_p = 1.84e3
 		self.lam = 0.52
+
+	def stability(self):
+		r = 0.5 #stability condition
+		K = self.lam/(self.rho*self.c_p)
+		self.dx = np.sqrt(K*self.dt*60*60*24/r)
+		print(self.dx)
+		self.steps = int(self.x // self.dx)
+		self.dx = self.x / self.steps 
 
 	def get_boundary(self,t,T):
 
-		sigma = 5.67
+		sigma = 5.67e-8
 		E_0 = 1367
 
 		zx = zenit(self.t,self.dt)[t]
-		P_sun = E_0 * (1 - self.a) * np.cos(zx)
+		P_sun = E_0 * (1 - self.a) * np.cos(zx/180.0*np.pi)
 		P_earth = self.epsilon * sigma * T**4
 
-		dT = (P_sun - P_earth) * self.dt / (self.c_p * self.rho * self.dx)
+		dT = (P_sun - P_earth) * self.dt*60*60*24 / (self.c_p * self.rho * self.dx)
+
+		#print("dT: ",dT)
 
 		return  dT 
 
 
 	def run(self):
 
-		grid = np.zeros((self.t,self.x)) + 273.15
 
-		grid[:,0] = self.get_boundary(0,0)
-		grid[:,-1] = self.lower_boundary + 273.15
-
-		K = self.lam/(self.rho*self.c_p)/1000
+		K = self.lam/(self.rho*self.c_p)
 		#K = 2.9/(890*2750)
-		r = K*self.dt/self.dx**2
+		self.stability()
 
-		print(r)
+		grid = np.zeros((self.t,self.steps)) + 273.15 + self.lower_boundary
 
-		for t in range(1,self.t):
-			for x in range(1,self.x-1):
+		grid[:,0] = grid[:,0] + self.get_boundary(0,grid[:,0])
+		#grid[:,0] = 273.15
+		#grid[:,-1] = self.lower_boundary + 273.15
+
+		r = K*self.dt*60*60*24/self.dx**2
+		print("r: ",r)
+		print("surface: ",grid[:,0])
+
+		for t in range(1,grid.shape[0]):
+			print(t,"/",grid.shape[0])
+			for x in range(1,grid.shape[1]-1):
+				#print("   ",x,"/",grid.shape[1])
+				grid[t,0] = grid[t,0] + self.get_boundary(t,grid[t,0])
+				grid[:,-1] = self.lower_boundary + 273.15
 				grid[t,x] = grid[t-1,x] + r*(grid[t-1,x+1] - 2*grid[t-1,x] + grid[t-1,x-1])
 			
 			# print(grid[t-1,x])
@@ -64,8 +83,10 @@ class Simulation:
 			#grid[t+1,0] = grid[t,0] #+ self.get_boundary(t,grid[t,x])
 			#grid[t+1,-1] = self.lower_boundary
 
-		plt.imshow(grid[::300,-1:0:-1].T)
+		#plt.imshow(grid[::1,-1:0:-5].T)
+		plt.imshow(grid[::1,::1].T)
 		plt.colorbar()
+		plt.tight_layout()
 		plt.show()
 
 
