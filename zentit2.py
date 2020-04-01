@@ -14,7 +14,7 @@ def zenit(steps_t = 800*24,delta_t = 60*60):
 	omega = np.zeros(steps_t)
 
 	for i in np.arange(steps_t):
-		t = i*delta_t+delta_t*40*24
+		t = i*delta_t 
 		d = t/sid_day*2*np.pi #earth rotation angle
 		a = t/year*2*np.pi #sun rotation angle
 		zx = np.arccos(np.cos(a)*np.cos(c)*np.cos(d)+np.sin(a)*np.cos(b)*np.cos(c)*np.sin(d)+np.sin(a)*np.sin(b)*np.sin(c))/(2*np.pi)*360
@@ -32,7 +32,7 @@ def zenit_value(t,c0=69):
 	b = 23.43666/360*2*np.pi 	#ecliptic
 	c = c0/360*2*np.pi 			#latitude
 
-	t = t*365.2422*24
+	t = t*60*60*24               #change t in [d]
 	d = t/sid_day*2*np.pi #earth rotation angle
 	a = t/year*2*np.pi #sun rotation angle
 	zx = np.arccos(np.cos(a)*np.cos(c)*np.cos(d)+np.sin(a)*np.cos(b)*np.cos(c)*np.sin(d)+np.sin(a)*np.sin(b)*np.sin(c))/(2*np.pi)*360
