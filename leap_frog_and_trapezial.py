@@ -7,29 +7,32 @@ from numpy.linalg import inv
 from zentit2 import zenit, zenit_value
 
 
-max_t=365*3    #[d]
-number_t=365*24
+max_t=7  #[d]
+number_t=7*1000
 delta_t=max_t*24*3600/number_t #[s]
-max_t_show=max_t
-min_t_show=0
-
-
 
 max_z=15   #[m]
-number_z=10
+number_z=1000
 delta_z=max_z/number_z #[m]
-max_z_show=max_z-1
+
+max_z_show=5  #plot sequenz depth
+max_t_show=max_t #plot sequenz time
+min_t_show=0
+scale_z=20
 
 
-a=0.6
+
 S_0=1367
-epsilon=0.92
 sigma=5.67*1e-8
-T_res=10+273.15
 
-c=1.84*10**3    #890               #granit
-rho=2.04*10**3    #2750
-k=6   #2.9
+T_res=10+273.15 #
+latitude=0 
+
+a=0.3                #granit
+epsilon=0.45
+c=890              
+rho=2750
+k=2.9
 K=k/(c*rho)
 r=K*delta_t/(delta_z)**2
 
@@ -93,7 +96,7 @@ def result(A,B,C):
     T[0][:]=T_res
     invB=np.linalg.inv(B)
     for i in np.arange(number_t-1):
-        C[0]=-delta_t/(c*rho*delta_z)*(-epsilon*sigma*T[i][0]**4+(1-a)*S_0*np.cos(zenit_value(i*delta_t/(3600*24),69)/360*2*np.pi))
+        C[0]=-delta_t/(c*rho*delta_z)*(-epsilon*sigma*T[i][0]**4+(1-a)*S_0*np.cos(zenit_value(i*delta_t/(3600*24),latitude)/360*2*np.pi))
         T[i+1][:]=np.dot(invB,np.dot(A,T[i][:])-C)
     return T
 #####################################################################
@@ -101,14 +104,18 @@ max_z_show_steps=int(max_z_show/max_z*number_z)
 max_t_show_steps=int(max_t_show/max_t*number_t)
 min_t_show_steps=int(min_t_show/max_t*number_t)
 
+
 R0=result(A_trap,B_trap,C_trap).transpose()
-R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+R=np.zeros((max_z_show_steps*scale_z,max_t_show_steps-min_t_show_steps))
 for j in np.arange(max_z_show_steps):
-    for i in np.arange(max_t_show_steps-min_t_show_steps):
-        R[j][i]=R0[j][i+min_t_show_steps]
+    for l in np.arange(scale_z):
+        for i in np.arange(max_t_show_steps-min_t_show_steps):
+            R[j*scale_z+l][i]=R0[j][i+min_t_show_steps]
+            
+        
 plt.matshow(R)
 plt.title('Trapezoidal')
-plt.yticks(np.arange(max_z_show+1)*number_z/max_z,np.arange(max_z_show+1))
+plt.yticks(np.arange(max_z_show+1)*number_z/max_z*scale_z,np.arange(max_z_show+1))
 plt.xticks(np.arange(max_t_show-min_t_show+1)*number_t/max_t,np.arange(min_t_show,max_t_show+1))
 plt.xlabel('time [d]')
 plt.ylabel('depth [m]')
@@ -117,13 +124,14 @@ plt.show()
 T_trap=R0[0]
 
 R0=result(A_trap_iso,B_trap_iso,C_trap_iso).transpose()
-R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+R=np.zeros((max_z_show_steps*scale_z,max_t_show_steps-min_t_show_steps))
 for j in np.arange(max_z_show_steps):
-    for i in np.arange(max_t_show_steps-min_t_show_steps):
-        R[j][i]=R0[j][i+min_t_show_steps]
+    for l in np.arange(scale_z):
+        for i in np.arange(max_t_show_steps-min_t_show_steps):
+            R[j*scale_z+l][i]=R0[j][i+min_t_show_steps]
 plt.matshow(R)
 plt.title('Trapezoidal Iso')
-plt.yticks(np.arange(max_z_show+1)*number_z/max_z,np.arange(max_z_show+1))
+plt.yticks(np.arange(max_z_show+1)*number_z/max_z*scale_z,np.arange(max_z_show+1))
 plt.xticks(np.arange(max_t_show-min_t_show+1)*number_t/max_t,np.arange(min_t_show,max_t_show+1))
 plt.xlabel('time [d]')
 plt.ylabel('depth [m]')
@@ -132,13 +140,14 @@ plt.show()
 T_trap_iso=R0[0]
 
 R0=result(A_leap,B_leap,C_leap).transpose()
-R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+R=np.zeros((max_z_show_steps*scale_z,max_t_show_steps-min_t_show_steps))
 for j in np.arange(max_z_show_steps):
-    for i in np.arange(max_t_show_steps-min_t_show_steps):
-        R[j][i]=R0[j][i+min_t_show_steps]
+    for l in np.arange(scale_z):
+        for i in np.arange(max_t_show_steps-min_t_show_steps):
+            R[j*scale_z+l][i]=R0[j][i+min_t_show_steps]
 plt.matshow(R)
 plt.title('Leap-Frog')
-plt.yticks(np.arange(max_z_show+1)*number_z/max_z,np.arange(max_z_show+1))
+plt.yticks(np.arange(max_z_show+1)*number_z/max_z*scale_z,np.arange(max_z_show+1))
 plt.xticks(np.arange(max_t_show-min_t_show+1)*number_t/max_t,np.arange(min_t_show,max_t_show+1))
 plt.xlabel('time [d]')
 plt.ylabel('depth [m]')
@@ -147,14 +156,15 @@ plt.show()
 T_leap=R0[0]
 
 R0=result(A_leap_iso,B_leap_iso,C_leap_iso).transpose()
-R=np.zeros((max_z_show_steps,max_t_show_steps-min_t_show_steps))
+R=np.zeros((max_z_show_steps*scale_z,max_t_show_steps-min_t_show_steps))
 for j in np.arange(max_z_show_steps):
-    for i in np.arange(max_t_show_steps-min_t_show_steps):
-        R[j][i]=R0[j][i+min_t_show_steps]
+    for l in np.arange(scale_z):
+        for i in np.arange(max_t_show_steps-min_t_show_steps):
+            R[j*scale_z+l][i]=R0[j][i+min_t_show_steps]
 plt.matshow(R)
 plt.title('Leap-Frog Iso')
-plt.yticks(np.arange(max_z_show)*number_z/max_z,np.arange(max_z_show))
-plt.xticks(np.arange(max_t_show-min_t_show)*number_t/max_t,np.arange(min_t_show,max_t_show))
+plt.yticks(np.arange(max_z_show+1)*number_z/max_z*scale_z,np.arange(max_z_show+1))
+plt.xticks(np.arange(max_t_show-min_t_show+1)*number_t/max_t,np.arange(min_t_show,max_t_show+1))
 plt.xlabel('time [d]')
 plt.ylabel('depth [m]')
 plt.colorbar().set_label('Temperature [K]')
