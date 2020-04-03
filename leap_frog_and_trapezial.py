@@ -12,7 +12,7 @@ number_t=7*1000
 delta_t=max_t*24*3600/number_t #[s]
 
 max_z=15   #[m]
-number_z=1000
+number_z=1071
 delta_z=max_z/number_z #[m]
 
 max_z_show=5  #plot sequenz depth
@@ -20,11 +20,8 @@ max_t_show=max_t #plot sequenz time
 min_t_show=0
 scale_z=20
 
-
-
 S_0=1367
 sigma=5.67*1e-8
-
 T_res=10+273.15 #
 latitude=0 
 
@@ -174,8 +171,9 @@ T_leap_iso=R0[0]
 
 plt.plot(T_leap, label='Leap-Frog')
 plt.plot(T_trap_iso, label='Isolated')
-plt.plot(T_trap, label='Trapezoidal')
+#plt.plot(T_trap, label='Trapezoidal')
 plt.title('Surface Temperature $T_{0}$')
+plt.xticks(np.arange(max_t+1)*number_t/max_t,np.arange(max_t+1))
 plt.xlabel('time [d]')
 plt.ylabel('Temperature [K]')
 plt.legend()
