@@ -1,41 +1,30 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from scipy.optimize import curve_fit
 import time
-from zentit2 import zenit, zenit_value
-from Media import Soil,Granite,Ice
+from Boundary import zenit, zenit_value
+from Media import Soil, Granite, Ice
 
 
 class Simulation:
 
-	def __init__(self):
-		self.x = 10
-		self.dx = 0.014 #m
-		self.t = 7 #1*360 #days
-		self.dt = 0.001#1/24/3 #days
+	def __init__(self,medium,lat = 0, x = 10, dx = 0.014, t = 7, dt = 0.001):
+		self.x = x
+		self.dx = dx #m
+		self.t = t #1*360 #days
+		self.dt = dt #1/24/3 #days
 		self.t_steps = int(self.t/self.dt)
-		self.steps = 100
+		self.steps = int(self.x/self.dx)
+		self.lat = lat
+		self.medium = medium
 
-		self.lower_boundary = 10 #degrees
+		self.lower_boundary = 10 + 273.15 #degrees
 		
-		#soil
-		self.a = 0.17 
-		self.epsilon = 0.92 
-		self.rho = 2.04e3
-		self.c_p = 1.84e3
-		self.lam = 0.52
-
-		#granite
-		self.a = 0.3
-		self.epsilon = 0.45 
-		self.rho = 2.75e3
-		self.c_p = 0.89e3
-		self.lam = 2.9
-
 	def stability(self):
 		r = 0.5 #stability condition
-		K = self.lam/(self.rho*self.c_p)
+		K = self.medium.lam/(self.medium.rho*self.medium.c_p)
 		self.dx = np.sqrt(K*self.dt*60*60*24/r)
 		self.steps = int(self.x // self.dx)
 		self.dx = self.x / self.steps 
@@ -47,25 +36,25 @@ class Simulation:
 		sigma = 5.67e-8
 		E_0 = 1367
 
-		zx = zenit_value(t,0)
-		P_sun = E_0 * (1 - self.a) * np.cos(zx/180.0*np.pi)
-		P_earth = self.epsilon * sigma * T**4
+		zx = zenit_value(t,self.lat)
+		P_sun = E_0 * (1 - self.medium.albedo) * np.cos(zx/180.0*np.pi) #+ 0.9 * E_0 * (self.medium.albedo) * np.cos(zx/180.0*np.pi)
+		P_earth = self.medium.epsilon * sigma * T**4 #- 0.1 * self.medium.epsilon * sigma * T**4
 
-		dT = (P_sun - P_earth) * self.dt*60*60*24 / (self.c_p * self.rho * self.dx)
+		dT = (P_sun - P_earth) * self.dt*60*60*24 / (self.medium.c_p * self.medium.rho * self.dx) 
 
 		#print("dT: ",dT)
 
 		return  dT 
 
 
-	def run(self):
+	def run(self,subtract = False):
 
 
-		K = self.lam/(self.rho*self.c_p)
+		K = self.medium.lam / (self.medium.rho * self.medium.c_p)
 		#K = 2.9/(890*2750)
 		self.stability()
 
-		grid = np.zeros((self.t_steps,self.steps)) + 273.15 + self.lower_boundary
+		grid = np.zeros((self.t_steps,self.steps)) + self.lower_boundary
 
 		grid[:,0] = grid[:,0] + self.get_boundary(0,grid[:,0])
 		#grid[:,0] = 273.15
@@ -76,41 +65,63 @@ class Simulation:
 		print("surface: ",grid[:,0])
 
 		for t in range(1,grid.shape[0]):
-			print(t,"/",grid.shape[0])
+			#print(t,"/",grid.shape[0])
+
 
 			grid[t,0] = grid[t-1,0] + self.get_boundary(t*self.dt,grid[t-1,0])
-			grid[t,-1] = self.lower_boundary + 273.15
+			grid[t,-1] = self.lower_boundary
 
 			grid[t,1:-1] = grid[t-1,1:-1] + r*(grid[t-1,2:] - 2*grid[t-1,1:-1] + grid[t-1,:-2])
+			
+			#print(T_loss)
+			if subtract:
 
-			"""
-			for x in range(1,grid.shape[1]-1):
-				#print("   ",x,"/",grid.shape[1])
-				grid[t,x] = grid[t-1,x] + r*(grid[t-1,x+1] - 2*grid[t-1,x] + grid[t-1,x-1])
-			"""
-			# print(grid[t-1,x])
-			# print(grid[t-1,x+1])
-			# print(- 2*grid[t-1,x])
-			# print(grid[t-1,x-1])
-			# print(t,x,r,grid[t,x])
+				T_loss = r*(grid[t-1,-2] - self.lower_boundary)
+				diff = grid[t,1:-2] - grid[t-1,1:-2]
+				#diff = grid[t,:-2] - grid[t,1:-1]
+				#print(diff)
+				print("Sum of Delta T_i: ",np.sum(diff))
+				if t > 10:
+					pass
+					#exit()
+				grid[t,0] = grid[t,0] - T_loss - np.sum(diff)
 
-			#grid[t+1,0] = grid[t,0] #+ self.get_boundary(t,grid[t,x])
-			#grid[t+1,-1] = self.lower_boundary
-
-		#plt.imshow(grid[::1,-1:0:-5].T)
-		plt.imshow(grid[::1,::1].T)
-		plt.colorbar()
-		plt.tight_layout()
-		plt.show()
+		xscale = 10
+		yscale = 1
+		#plt.imshow(grid[::xscale,::yscale].T)
+		#plt.xticks(np.arange(0,self.t_steps/xscale,step=100), [ int(i*self.dt*xscale) for i in np.arange(0,self.t_steps/xscale,step=100)])
+		#plt.yticks(np.arange(0,self.steps/yscale,step=100), [ "{:.1f}".format(i*self.dx*yscale) for i in np.arange(0,self.steps/yscale,step=100)])
+		#plt.ylabel("depth [m]")
+		#plt.xlabel("days [d]")
+		#plt.colorbar()
+		#plt.tight_layout()
+		#plt.show()
 
 		plt.plot(np.linspace(0,self.t,self.t_steps),grid[:,0])
+		#plt.show()
+
+	def get_true_data(self):
+
+		filename = "bodemessnetz_datenabfrage.csv"
+
+		df = pd.read_csv(filename,encoding = "ISO-8859-1")
+
+		plt.title("Zollikofen-Oberacker")
+		air_temp = df["Lufttemperatur 2 m"].astype(float) + 273.15
+		soil_temp = df["Bodentemperatur 20 cm"].astype(float) + 273.15
+		plt.plot(range(len(air_temp)),air_temp,label="airtemp")
+		plt.plot(range(len(soil_temp)),soil_temp,label="soiltemp")
+		plt.xlabel("days")
+		plt.ylabel("T [K]")
+		plt.legend()
 		plt.show()
-
-
-
+		exit()
 
 
 if __name__ == "__main__":
 
-	Explicit = Simulation()
+	Explicit = Simulation(Granite)
+	#Explicit.get_true_data()
 	Explicit.run()
+	Explicit.run(True)
+	plt.show()
