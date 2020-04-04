@@ -1,9 +1,3 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
-import scipy.integrate as integrate
-import math
-from numpy.linalg import inv
 
 class Medium:
 
