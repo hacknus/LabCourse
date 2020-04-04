@@ -32,7 +32,11 @@ def zenit_value(t,c0=69):
 	b = 23.43666/360*2*np.pi 	#ecliptic
 	c = c0/360*2*np.pi 			#latitude
 
+<<<<<<< HEAD
 	t = t*60*60*24               #change t in [d]
+=======
+	t = t*60*60*24
+>>>>>>> master
 	d = t/sid_day*2*np.pi #earth rotation angle
 	a = t/year*2*np.pi #sun rotation angle
 	zx = np.arccos(np.cos(a)*np.cos(c)*np.cos(d)+np.sin(a)*np.cos(b)*np.cos(c)*np.sin(d)+np.sin(a)*np.sin(b)*np.sin(c))/(2*np.pi)*360
