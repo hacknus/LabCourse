@@ -53,14 +53,8 @@ def zenit_value(t,c0=69):
 # omega = zenit()
 
 
-#if __name__ == "__main__":
-#	omega = zenit()
-#	print(min(omega))
-#	plt.plot(omega)
+if __name__ == "__main__":
+	omega = zenit()
+	print(min(omega))
+	plt.plot(omega)
 
-k=19
-omega=np.zeros(k)
-for i in np.arange(k):
-    omega[i]=zenit_value((i)*1/(24),45)
-    
-plt.plot(omega)
