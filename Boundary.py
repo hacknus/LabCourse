@@ -34,7 +34,7 @@ def zenit_value(t,c0=69):
 
 
 	t = t*60*60*24+(10*24*60*60+37*60)                 #change t in [d]          #(10*24*60*60+37*60) start at 00:00 1. january 2019
-	d = (t+11*60*60+23*60)/sid_day*2*np.pi             #earth rotation angle     #+11*60*60+23*60 shortest day was in our longitude at 23:23 21.12.2018 
+	d = (t+5*60*60+23*60)/sid_day*2*np.pi             #earth rotation angle     #+11*60*60+23*60 shortest day was in our longitude at 23:23 21.12.2018 
 	a = (t-(year/4))/year*2*np.pi                      #sun rotation angle       #-(year/4) start at shortest day    
 	zx = np.arccos(np.cos(a)*np.cos(c)*np.cos(d)+np.sin(a)*np.cos(b)*np.cos(c)*np.sin(d)+np.sin(a)*np.sin(b)*np.sin(c))/(2*np.pi)*360
 	#print(i)
@@ -53,8 +53,14 @@ def zenit_value(t,c0=69):
 # omega = zenit()
 
 
-if __name__ == "__main__":
-	omega = zenit()
-	print(min(omega))
-	plt.plot(omega)
+#if __name__ == "__main__":
+#	omega = zenit()
+#	print(min(omega))
+#	plt.plot(omega)
 
+k=19
+omega=np.zeros(k)
+for i in np.arange(k):
+    omega[i]=zenit_value((i)*1/(24),45)
+    
+plt.plot(omega)
