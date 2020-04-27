@@ -9,15 +9,15 @@ from inversion import invert
 from Boundary import zenit_value
 from matrix import Trapezoidal, Trapezoidal_Iso, Leap_Frog, Leap_Frog_Iso 
 from Media import Granite, Ice, Soil
-from model_exp_manipulated import run
+from model_exp import Simulation
 
 
 #parameters for the function
 max_t=30             #[d] time periode 
-delta_t=0.001        #[d] time step size
+delta_t=0.01        #[d] time step size
 max_z=10           #[m] depth
 delta_z=0.01          #[m] depth step size
-latitude=46.9          #[deg] latitude   
+latitude=90          #[deg] latitude   
 medium=Ice        #(Granite, Ice or Soil) media 
 methode=Trapezoidal      #(Trapezoidal,Trapezoidal_Iso, Leap_Frog or Lea_frog_Iso) method 
 
@@ -44,7 +44,7 @@ class Implicit:
         
         #imort the matching matrices A, B and vector C
         A=methode.A(number_z+1,r)  
-        invB=invert(methode.B(number_z+1,r))        #np.linalg.inv(methode.B(number_z+1,r))             
+        invB=invert(methode.B(number_z+1,r))       #invert          
         C=methode.C(number_z+1,r,T_res)
         #Solving the linear equation sistem for each time step
         for i in np.arange(number_t-1):
@@ -77,16 +77,11 @@ if __name__ == "__main__":
     print(tstart-tend)
     R0=R0[min_t_show_steps:max_t_show_steps+1].T
     
-    #other media
-    #R1=Implicit.run(max_t,delta_t,max_z,delta_z,latitude,Soil,methode).T
-    #R1=R1[min_t_show_steps:max_t_show_steps+1].T
-    #R2=Implicit.run(max_t,delta_t,max_z,delta_z,latitude,Granite,methode).T
-    #R2=R2[min_t_show_steps:max_t_show_steps+1].T
     
     #plot matrix sequenz
-    #norm = plt.Normalize(220,330) 
+
     norm = plt.Normalize(220,280) 
-    #plt.imshow(R0[0:max_z_show_steps+1],cmap="jet",aspect='auto')   
+    plt.imshow(R0[0:max_z_show_steps+1],cmap="jet",aspect='auto')   
     plt.imshow(R0[0:max_z_show_steps+1],cmap="jet",aspect='auto',norm=norm)
     plt.yticks(np.arange(max_z_show+1)*number_z/max_z,np.arange(max_z_show+1))
     plt.xticks(np.arange((max_t_show+1-min_t_show)/t_ticks_stepsize)*number_t/(max_t/t_ticks_stepsize),np.arange(min_t_show, (max_t_show+1)*t_ticks_stepsize,t_ticks_stepsize))
@@ -96,7 +91,7 @@ if __name__ == "__main__":
     plt.ylabel('depth [m]')
 
     plt.colorbar().set_label('temperature [K]')
-    #plt.savefig("material/granite.pdf")
+    plt.savefig("material/granite.pdf")
     #plt.savefig("latitude/depthprofile/depth_profile_zenith_{}.pdf".format(latitude))
     plt.show()   
     
@@ -113,7 +108,7 @@ if __name__ == "__main__":
     plt.ylabel('temperature [K]')
     #plt.savefig("latitude/uppermost/uppermost_{}.pdf".format(latitude))
     plt.legend()
-    plt.savefig('material/uppermost.pdf')
+    #plt.savefig('material/uppermost.pdf')
     plt.show()
     
     #plot zenith angle
@@ -130,32 +125,4 @@ if __name__ == "__main__":
     #plt.savefig("latitude/zenith/zenith_{}.pdf".format(latitude))
     plt.show()
     
-#####################################################################################
-    def frog(self,subtract = False):
-        K = self.medium.lam / (self.medium.rho * self.medium.c_p)
-		grid = np.zeros((self.t_steps,self.steps)) + self.lower_boundary
-		grid[:,0] = grid[:,0] + self.get_boundary(0,grid[:,0])
-		r = K*self.dt*60*60*24/self.dx**2
-		print("r: ",r)
-		print("surface: ",grid[:,0])
-		for t in range(1,grid.shape[0]):
-			#print(t,"/",grid.shape[0])
-
-
-			grid[t,0] = grid[t-1,0] + self.get_boundary(t*self.dt,grid[t-1,0])
-			grid[t,-1] = self.lower_boundary
-
-			grid[t,1:-1] = grid[t-1,1:-1] + r*(grid[t-1,2:] - 2*grid[t-1,1:-1] + grid[t-1,:-2])			
-			#print(T_loss)
-			if subtract:
-
-				T_loss = r*(grid[t-1,-2] - self.lower_boundary)
-				diff = grid[t,1:-2] - grid[t-1,1:-2]
-				#diff = grid[t,:-2] - grid[t,1:-1]
-				#print(diff)
-				print("Sum of Delta T_i: ",np.sum(diff))
-				if t > 10:
-					pass
-					#exit()
-				grid[t,0] = grid[t,0] - T_loss - np.sum(diff)
-        return  grid
+    
