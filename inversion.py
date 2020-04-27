@@ -3,7 +3,6 @@ import numpy as np
 
 def invert(B):
     
-    
     #these gausformations makes B tridiagonal
     number_z=np.size(B[0])
     B_inv=np.diagflat(np.full(number_z, 1, dtype=np.float))
