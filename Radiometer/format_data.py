@@ -20,7 +20,7 @@ def split_dataset(filename):
             last_i = i + 1
 
 
-def create_files(df, out_folder, out_file):
+def create_files(df, out_folder, out_file, save = True):
     V_val = np.array(df.VDetector).mean()
     V_std = np.array(df.VDetector).std()
     T_load_val = np.array(df.TLoad).mean()
@@ -40,6 +40,8 @@ def create_files(df, out_folder, out_file):
         "ele_std": [ele_std]
     }
     dfnew = pd.DataFrame(data=d)
+    if not save:
+        return dfnew
     dfnew.to_csv(out_folder + "/" + out_file)
 
 
@@ -75,11 +77,14 @@ def gather_dataset(indices, folder):
 
     for i in range(2, 12):
         filename = "data/dataset{:03d}.csv".format(indices[i])
-        if i == 0:
+        if i == 2:
             df = pd.read_csv(filename, header=0)
+            df = create_files(df, folder, "angles.csv",False)
         else:
-            df.append(pd.read_csv(filename, header=0))
-    create_files(df, folder, "angles.csv")
+            new_df = pd.read_csv(filename, header=0)
+            new_df = create_files(new_df, folder, "angles.csv", False)
+            df = df.append(new_df,ignore_index = True)
+    df.to_csv(folder + "/angles.csv")
 
     # hot load
     filename = "data/dataset{:03d}.csv".format(indices[12])
