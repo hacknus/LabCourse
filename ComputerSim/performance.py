@@ -1,12 +1,9 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from scipy.optimize import curve_fit
 import time
-from Boundary import zenit, zenit_value
-from Media import Soil, Granite, Ice
-from matrix import Trapezoidal, Trapezoidal_Iso, Leap_Frog, Leap_Frog_Iso 
+from Media import Soil, Granite
+from ComputerSim.matrix import Trapezoidal, Trapezoidal_Iso, Leap_Frog_Iso
 
 from model_exp import Simulation
 from model_imp import Implicit

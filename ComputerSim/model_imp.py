@@ -7,7 +7,7 @@ import numpy as np
 from numpy.linalg import inv
 from inversion import invert
 from Boundary import zenit_value
-from matrix import Trapezoidal, Trapezoidal_Iso, Leap_Frog, Leap_Frog_Iso 
+from ComputerSim.matrix import Trapezoidal, Trapezoidal_Iso, Leap_Frog, Leap_Frog_Iso
 from Media import Granite, Ice, Soil
 
 
