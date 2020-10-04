@@ -3,20 +3,40 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import platform
+from scipy.optimize import curve_fit
+
 
 def tau_function(tau0):
+    T0 = 2.7 + 273.15
+    T_m = 16-10
+    k = 0
     T_cold = T0 * np.exp(-tau0) + (1 - np.exp(-tau0)) * T_m
-    tau = np.zeros(10 - k)
+    taus = np.zeros(10 - k)
     for i in np.arange(10 - k):
         U_teta = angles.v_val[i + k]
         T_teta = (U_teta - U_hot) / (U_hot - U_cold) * (T_hot - T_cold) + T_hot
-        tau[i] = np.log((T_m - T0) / (T_m - T_teta))
-    return tau
+        taus[i] = np.log((T_m - T0) / (T_m - T_teta))
+    return taus
+
+
+def T_cold(T0, tau_i, T_m):
+    return T0 * np.exp(-tau_i) + (1 - np.exp(-tau_i)) * T_m
+
+
+def tau(U_theta, U_cold, U_hot, T_hot, tau_i):
+    T0 = 2.7 + 273.15
+    T_m = 16 - 10
+    T_theta = (U_theta - U_hot) / (U_hot - U_cold) * (T_hot - T_cold(T0, tau_i, T_m)) + T_hot
+    return np.log((T_m - T0) / (T_m - T_theta))
+
+
+def linear(t, m, b):
+    return t * m + b
 
 
 OS = platform.system()
 
-for freq,c in zip([16,17,18,19],['red','blue','green','orange']):
+for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
 
     print("calculating frequency = {} GHZ".format(freq))
     if OS == "Windows":
@@ -28,38 +48,30 @@ for freq,c in zip([16,17,18,19],['red','blue','green','orange']):
         hot_load_before = pd.read_csv('{}GHZ/hot_load_before.csv'.format(freq))
         hot_load_after = pd.read_csv('{}GHZ/hot_load_after.csv'.format(freq))
 
-    k=0                     #wie viele datenpunkte weglassen
-    T0=2.7 + 273.15
-    tau0=0.3
-    T_m = 16-10
+    U_cold = np.array(angles.v_val)[-1]
+    T_hot = np.array(hot_load_before.T_load_val + hot_load_after.T_load_val)[0] / 2.
+    U_hot = np.array(hot_load_before.v_val + hot_load_after.v_val)[0] / 2.
+    rel_thickness = 1 / np.cos((90 - np.array(angles.ele_val)) / 180 * np.pi)
 
-    U_cold = angles.v_val[9]
-    T_hot = (hot_load_before.T_load_val+hot_load_after.T_load_val)/2.
-    U_hot = (hot_load_before.v_val+hot_load_after.v_val)/2.
+    tau_i = 0.3
+    last_tau = 0
+    counter = 0
+    while abs(tau_i - last_tau) > 1e-2:
+        taus = tau(np.array(angles.v_val), U_cold, U_hot, T_hot, tau_i)
 
-    rel_thickness = np.zeros(10-k)
-    for i in np.arange(10-k):
-        rel_thickness[i] = 1/np.cos((90-angles.ele_val[i+k])/180*np.pi)
+        # TODO: error propagationneeds to be implemented
+        tau_err = tau(np.array(angles.v_std), U_cold, U_hot, T_hot, tau_i)
+        last_tau = tau_i
+        popt, pcov = curve_fit(linear, rel_thickness, taus, p0=[tau_i, 0], sigma=tau_err)
+        tau_i = popt[0]
+        tau_err = pcov[0][0]
+        offset = popt[1]
+        counter += 1
 
-    B0=1
-    while np.abs(B0) >= 0.01:
-        tau = tau_function(tau0)
-        sum1=0
-        sum2=0
-        for i in np.arange(10-k):
-            sum1 = sum1 + (rel_thickness[i]-np.mean(rel_thickness))*(tau[i]-np.mean(tau))
-            sum2 = sum2 + (rel_thickness[i]-np.mean(rel_thickness))**2
-        B1 = sum1/sum2
-        B0 = np.mean(tau) - B1* np.mean(rel_thickness)
-        tau0 = B0 + B1*1
-
-        f = np.zeros(4)
-        for i in np.arange(4):
-            f[i] = B0 + B1*i
-    print(f)
-    plt.plot(f,color=c,ls="--")
-    plt.plot(rel_thickness,tau,label="{} GHZ".format(freq),color=c)
-    print("tau = {:.4f}".format(tau0))
+    plt.plot(rel_thickness, taus, label="{} GHZ".format(freq), color=c)
+    rel_thickness = np.linspace(0,4,10)
+    plt.plot(rel_thickness, linear(rel_thickness, *popt), color=c, ls="--")
+    print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
 plt.xlabel("rel thickness [-]")
 plt.ylabel("opacity [%]")
 plt.legend()
