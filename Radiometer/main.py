@@ -14,6 +14,7 @@ def plot():
     plt.legend()
     plt.xlabel("elevation [°]")
     plt.ylabel("detector voltage [V]")
+    plt.savefig("4freq_angles.pdf")
     plt.show()
 
 if __name__ == "__main__":
