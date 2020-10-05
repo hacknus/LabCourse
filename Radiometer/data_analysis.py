@@ -55,8 +55,15 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
 
     tau_i = 0.3
     last_tau = 0
-    counter = 0
-    while abs(tau_i - last_tau) > 1e-2:
+
+    # perform first iteration
+    taus = tau(np.array(angles.v_val), U_cold, U_hot, T_hot, tau_i)
+    tau_err = tau(np.array(angles.v_std), U_cold, U_hot, T_hot, tau_i)
+    last_tau = tau_i
+    popt, pcov = curve_fit(linear, rel_thickness, taus, p0=[tau_i, 0], sigma=tau_err)
+
+
+    while abs(linear(0, *popt)) > 1e-2:
         taus = tau(np.array(angles.v_val), U_cold, U_hot, T_hot, tau_i)
 
         # TODO: error propagationneeds to be implemented
@@ -66,7 +73,6 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
         tau_i = popt[0]
         tau_err = pcov[0][0]
         offset = popt[1]
-        counter += 1
 
     plt.plot(rel_thickness, taus, label="{} GHZ".format(freq), color=c)
     rel_thickness = np.linspace(0,4,10)
