@@ -70,7 +70,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     T_hand_err = 5
 
 
-    plt.plot(rel_thickness, 100*taus, label="{} GHZ".format(freq), color=c)
+    plt.plot(rel_thickness, 100*taus, label="{} GHZ".format(freq+3.75+0.55), color=c)
     rel_thickness = np.linspace(0, 4, 10)
     plt.plot(rel_thickness, 100*linear(rel_thickness, *popt), color=c, ls="--")
     print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
