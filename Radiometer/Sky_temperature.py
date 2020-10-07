@@ -7,7 +7,7 @@ def T(U,K,c):
     return K*U+c
 
 OS = platform.system()
-
+angles = pd.read_csv(r'{}GHZ\K_and_C.csv'.format(freq))
 for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     if OS == "Windows":
         angles = pd.read_csv(r'{}GHZ\angles.csv'.format(freq))  
