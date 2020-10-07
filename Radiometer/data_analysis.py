@@ -22,7 +22,6 @@ def coefficient(U_hot,U_cold,T_hot,T_cold):
 def T_offset(U_hot,T_hot,K):
     return T_hot - K*U_hot
 
-
 def linear(t, m, b):
     return t * m + b
 
