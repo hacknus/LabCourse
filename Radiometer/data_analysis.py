@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import platform
 from scipy.optimize import curve_fit
-
+import csv
 
 def T_cold(T0, tau_i, T_m):
     return T0 * np.exp(-tau_i) + (1 - np.exp(-tau_i)) * T_m
@@ -69,13 +69,29 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     T_hand_err = 5
 
 
-    plt.plot(rel_thickness, 100*taus, label="{} GHZ".format(freq), color=c)
+    plt.plot(rel_thickness, 100*taus, label="{} GHZ".format(freq+3.75+0.55), color=c)
     rel_thickness = np.linspace(0, 4, 10)
     plt.plot(rel_thickness, 100*linear(rel_thickness, *popt), color=c, ls="--")
     print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
     print("T_hand = {:.6f} +/- {:.6f}".format(T_hand - 273.15, T_hand_err))
-
-plt.xlabel("rel thickness [-]")
-plt.ylabel("opacity [%]")
+    K=coefficient(U_hot,U_cold,T_hot,T_cold(T0, tau_i, T_m))
+    K_err=3
+    C=T_offset(U_hot,T_hot,K)
+    C_err=3
+    if OS == "Windows":
+        with open('{}GHZ\K_and_C.csv'.format(freq), 'w', newline='') as csvfile:
+            fieldnames = ['K', 'K_err','C', 'C_err']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow({'K':K , 'K_err': K_err, 'C': C, 'C_err': C_err})
+    else:
+        with open('{}GHZ/K_and_C.csv'.format(freq), 'w', newline='') as csvfile:
+            fieldnames = ['K', 'K_err','C', 'C_err']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow({'K':K , 'K_err': K_err, 'C': C, 'C_err': C_err})
+    
+plt.xlabel("rel. thickness [-]")
+plt.ylabel("opacity [-]")
 plt.legend()
 plt.show()
