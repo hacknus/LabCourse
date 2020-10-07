@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
+import matplotlib.pyplot as plt
 
 def split_dataset(filename):
     parse_dates = ['time']
@@ -69,61 +69,99 @@ def gather_dataset(indices, folder):
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "hot_load_before.csv")
 
+    if np.mean(df.Hot) != 1 and np.mean(df.Noise) != 0:
+        print("error in hot load file")
+
     # noise load
     filename = "data/dataset{:03d}.csv".format(indices[1])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "noise_load_after.csv")
 
+    if np.mean(df.Noise) != 1:
+        print("error in hot noise file")
+
     for i in range(2, 12):
         filename = "data/dataset{:03d}.csv".format(indices[i])
         if i == 2:
             df = pd.read_csv(filename, header=0)
+            if np.mean(df.Sky) != 1:
+                print("error in angles file")
             df = create_files(df, folder, "angles.csv",False)
         else:
             new_df = pd.read_csv(filename, header=0)
+            if np.mean(new_df.Sky) != 1:
+                print("error in angles file")
             new_df = create_files(new_df, folder, "angles.csv", False)
             df = df.append(new_df,ignore_index = True)
     df.to_csv(folder + "/angles.csv")
+    #plt.plot(df.ele_val,df.v_val)
+    #plt.show()
+
+
 
     # hot load
     filename = "data/dataset{:03d}.csv".format(indices[12])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "hot_load_after.csv")
 
+    if np.mean(df.Hot) != 1 and np.mean(df.Noise) != 0:
+        print("error in hot Load file")
+
     # noise load
     filename = "data/dataset{:03d}.csv".format(indices[13])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "noise_load_after.csv")
+
+    if np.mean(df.Noise) != 1:
+        print("error in hot noise file")
 
     # hand
     filename = "data/dataset{:03d}.csv".format(indices[14])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "hand.csv")
 
+    if np.mean(df.Sky) != 1:
+        print("error in hand file")
+
     # hand2
     filename = "data/dataset{:03d}.csv".format(indices[15])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "hand2.csv")
+
+    if np.mean(df.Sky) != 1:
+        print("error in hand 2 file")
 
     # blackbody
     filename = "data/dataset{:03d}.csv".format(indices[16])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "blackbody.csv")
 
+    if np.mean(df.Sky) != 1:
+        print("error in blackbody file")
+
     # acrylic
     filename = "data/dataset{:03d}.csv".format(indices[17])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "acrylic.csv")
+
+    if np.mean(df.Sky) != 1:
+        print("error in acrylic file")
 
     # blue foam
     filename = "data/dataset{:03d}.csv".format(indices[18])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "bluefoam.csv")
 
+    if np.mean(df.Sky) != 1:
+        print("error in blue foam file")
+
     # cellphone
     filename = "data/dataset{:03d}.csv".format(indices[19])
     df = pd.read_csv(filename, header=0)
     create_files(df, folder, "cellphone.csv")
+
+    if np.mean(df.Sky) != 1:
+        print("error in cellphone file")
 
 if __name__ == "__main__":
     #split_dataset("data_raw.csv")
