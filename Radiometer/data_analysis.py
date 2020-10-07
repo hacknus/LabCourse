@@ -7,8 +7,8 @@ from scipy.optimize import curve_fit
 
 
 def tau_function(tau0):
-    T0 = 2.7
-    T_m = 16-10 + 273.15
+    T0 = 2.7 + 273.15
+    T_m = 16-10
     k = 0
     T_cold = T0 * np.exp(-tau0) + (1 - np.exp(-tau0)) * T_m
     taus = np.zeros(10 - k)
@@ -24,8 +24,8 @@ def T_cold(T0, tau_i, T_m):
 
 
 def tau(U_theta, U_cold, U_hot, T_hot, tau_i):
-    T0 = 2.7
-    T_m = 16 - 10 + 273.15
+    T0 = 2.7 + 273.15
+    T_m = 16 - 10
     T_theta = (U_theta - U_hot) / (U_hot - U_cold) * (T_hot - T_cold(T0, tau_i, T_m)) + T_hot
     return np.log((T_m - T0) / (T_m - T_theta))
 
@@ -49,8 +49,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
         hot_load_after = pd.read_csv('{}GHZ/hot_load_after.csv'.format(freq))
 
     U_cold = np.array(angles.v_val)[-1]
-    T_hot = np.array(hot_load_before.T_load_val + hot_load_after.T_load_val)[0] / 2. + 273.15
-
+    T_hot = np.array(hot_load_before.T_load_val + hot_load_after.T_load_val)[0] / 2.
     U_hot = np.array(hot_load_before.v_val + hot_load_after.v_val)[0] / 2.
     rel_thickness = 1 / np.cos((90 - np.array(angles.ele_val)) / 180 * np.pi)
 
@@ -64,7 +63,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     popt, pcov = curve_fit(linear, rel_thickness, taus, p0=[tau_i, 0], sigma=tau_err)
 
 
-    while abs(popt[1]) > 1e-2:
+    while abs(linear(0, *popt)) > 1e-2:
         taus = tau(np.array(angles.v_val), U_cold, U_hot, T_hot, tau_i)
 
         # TODO: error propagationneeds to be implemented
@@ -73,6 +72,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
         popt, pcov = curve_fit(linear, rel_thickness, taus, p0=[tau_i, 0], sigma=tau_err)
         tau_i = popt[0]
         tau_err = pcov[0][0]
+        offset = popt[1]
 
     plt.plot(rel_thickness, taus, label="{} GHZ".format(freq), color=c)
     rel_thickness = np.linspace(0,4,10)
