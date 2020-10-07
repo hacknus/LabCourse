@@ -76,7 +76,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
     print("T_hand = {:.6f} +/- {:.6f}".format(T_hand - 273.15, T_hand_err))
     if OS == "Windows":
-        with open('{}GHZ\K_and_c_{}.csv'.format(freq,freq), 'w', newline='') as csvfile:
+        with open('{}GHZ\K_and_C.csv'.format(freq), 'w', newline='') as csvfile:
             fieldnames = ['K', 'K_err','C', 'C_err']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -86,7 +86,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
             C_err=3
             writer.writerow({'K':K , 'K_err': K_err, 'C': C, 'C_err': C_err})
     else:
-        with open('{}GHZ/K_and_c_{}.csv'.format(freq,freq), 'w', newline='') as csvfile:
+        with open('{}GHZ/K_and_C.csv'.format(freq), 'w', newline='') as csvfile:
             fieldnames = ['K', 'K_err','C', 'C_err']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
