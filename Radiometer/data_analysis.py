@@ -6,29 +6,23 @@ import platform
 from scipy.optimize import curve_fit
 
 
-def tau_function(tau0):
-    T0 = 2.7 + 273.15
-    T_m = 16-10
-    k = 0
-    T_cold = T0 * np.exp(-tau0) + (1 - np.exp(-tau0)) * T_m
-    taus = np.zeros(10 - k)
-    for i in np.arange(10 - k):
-        U_teta = angles.v_val[i + k]
-        T_teta = (U_teta - U_hot) / (U_hot - U_cold) * (T_hot - T_cold) + T_hot
-        taus[i] = np.log((T_m - T0) / (T_m - T_teta))
-    return taus
 
-
-def T_cold(T0, tau_i, T_m):
-    return T0 * np.exp(-tau_i) + (1 - np.exp(-tau_i)) * T_m
-
-
-def tau(U_theta, U_cold, U_hot, T_hot, tau_i):
-    T0 = 2.7 + 273.15
+def T_cold(tau_i):
+    T0 = 2.7 - 273.15
     T_m = 16 - 10
-    T_theta = (U_theta - U_hot) / (U_hot - U_cold) * (T_hot - T_cold(T0, tau_i, T_m)) + T_hot
+    return T0 * np.exp(-tau_i) + (1 - np.exp(-tau_i)) * T_m
+    
+def tau(U_theta, U_cold, U_hot, T_hot, tau_i):
+    T0 = 2.7 - 273.15
+    T_m = 16 - 10
+    T_theta = (U_theta - U_hot) / (U_hot - U_cold) * (T_hot - T_cold(tau_i)) + T_hot
     return np.log((T_m - T0) / (T_m - T_theta))
 
+def coefficient(U_hot,U_cold,T_hot,T_cold):
+    return (T_hot-T_cold)/(U_hot-U_cold)
+
+def T_offset(U_hot,T_hot,K):
+    return T_hot - K*U_hot
 
 def linear(t, m, b):
     return t * m + b
@@ -73,12 +67,23 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
         tau_i = popt[0]
         tau_err = pcov[0][0]
         offset = popt[1]
-
+    T_c = T_cold(tau_i)
+    T_c_err = 5
+    K = coefficient(U_hot,U_cold,T_hot,T_c)
+    print(K)
+    K_err=5
+    C = T_offset(U_hot,T_hot,K)
+    C_err=5
     plt.plot(rel_thickness, taus, label="{} GHZ".format(freq), color=c)
     rel_thickness = np.linspace(0,4,10)
     plt.plot(rel_thickness, linear(rel_thickness, *popt), color=c, ls="--")
     print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
+    print("T_cold = {:.6f} +/- {:.6f}".format(T_c, T_c_err))
+    print("Coefficient = {:.6f} +/- {:.6f}".format(K, K_err))
+    print("T_offset = {:.6f} +/- {:.6f}".format(C, C_err))
+    print("")
 plt.xlabel("rel thickness [-]")
 plt.ylabel("opacity [%]")
 plt.legend()
 plt.show()
+
