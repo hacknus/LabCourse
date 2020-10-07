@@ -19,9 +19,11 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     C=np.array(K_and_C.C)
     T_sky = T(np.array(angles.v_val),K,C)
     rel_thickness = 1 / np.cos((90 - np.array(angles.ele_val)) / 180 * np.pi)
-    plt.plot(rel_thickness,T_sky)
+    plt.plot(rel_thickness,T_sky,label="{} GHZ".format(freq+3.75+0.55), color=c)
     
 plt.xlabel("rel. thickness [-]")
 plt.ylabel("T [$C°$]")
 plt.legend()
 plt.show()    
+
+frequeny= [16.55,]
