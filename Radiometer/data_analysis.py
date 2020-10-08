@@ -101,7 +101,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerow({'K':K , 'K_err': K_err, 'C': C, 'C_err': C_err})
-    
+plt.xlabel('frequency [GHz]')   
 plt.xlabel("rel. thickness [-]")
 plt.ylabel("opacity [-]")
 plt.legend()
