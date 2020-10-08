@@ -9,6 +9,8 @@ import csv
 def T_cold(T0, tau_i, T_m):
     return T0 * np.exp(-tau_i) + (1 - np.exp(-tau_i)) * T_m
 
+def T_cold_err(T0, tau_i, tau_i_err, T_m):
+    return np.sqrt((np.exp(-tau_i) * (T0-T_m) * tau_i_err) ** 2)
 
 def tau(U_theta, U_cold, U_hot, T_hot, tau_i):
     T0 = 2.7
@@ -19,9 +21,14 @@ def tau(U_theta, U_cold, U_hot, T_hot, tau_i):
 def coefficient(U_hot,U_cold,T_hot,T_cold):
     return (T_hot-T_cold)/(U_hot-U_cold)
 
+def coefficient_err(U_hot, dU_hot, U_cold, dU_cold, T_hot, dT_hot, T_cold, dT_cold):
+    return np.sqrt( (dT_hot / (U_hot-U_cold)) ** 2 + ( dT_cold /(U_hot-U_cold)) ** 2 + ((T_hot-T_cold)/(U_hot-U_cold)**2*dU_hot**2) + ((T_hot-T_cold)/(U_hot-U_cold)**2*dU_cold**2))
+
+def T_offset_err(U_hot, dU_hot, dT_hot, K, Kerr):
+    return np.sqrt( dT_hot**2 + (U_hot * Kerr)**2 + (K * dU_hot)**2)
+
 def T_offset(U_hot,T_hot,K):
     return T_hot - K*U_hot
-
 
 def linear(t, m, b):
     return t * m + b
@@ -44,8 +51,11 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
         hot_load_after = pd.read_csv('{}GHZ/hot_load_after.csv'.format(freq))
 
     U_cold = np.array(angles.v_val)[-1]
+    dU_cold = np.array(angles.v_std)[-1]
     T_hot = np.array(hot_load_before.T_load_val + hot_load_after.T_load_val)[0] / 2. + 273.15
+    dT_hot = np.sqrt(np.array(hot_load_before.T_load_std**2 + hot_load_after.T_load_std**2)[0])
     U_hot = np.array(hot_load_before.v_val + hot_load_after.v_val)[0] / 2.
+    dU_hot = np.sqrt(np.array(hot_load_before.v_std**2 + hot_load_after.v_std**2)[0])
     rel_thickness = 1 / np.cos((90 - np.array(angles.ele_val)) / 180 * np.pi)
 
     tau_i = 0.3
@@ -74,11 +84,11 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     rel_thickness = np.linspace(0, 4, 10)
     plt.plot(rel_thickness, 100*linear(rel_thickness, *popt), color=c, ls="--")
     print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
-    print("T_hand = {:.6f} +/- {:.6f}".format(T_hand - 273.15, T_hand_err))
-    K=coefficient(U_hot,U_cold,T_hot,T_cold(T0, tau_i, T_m))
-    K_err=3
-    C=T_offset(U_hot,T_hot,K)
-    C_err=3
+    K = coefficient(U_hot,U_cold,T_hot,T_cold(T0, tau_i, T_m))
+    dT_cold = T_cold_err(T0, tau_i, tau_err, T_m)
+    K_err = coefficient_err(U_hot, dU_hot, U_cold, dU_cold, T_hot, dT_hot, T_cold(T0, tau_i, T_m), dT_cold)
+    C = T_offset(U_hot,T_hot,K)
+    C_err = T_offset_err(U_hot, dU_hot, dT_hot, K, K_err)
     if OS == "Windows":
         with open('{}GHZ\K_and_C.csv'.format(freq), 'w', newline='') as csvfile:
             fieldnames = ['K', 'K_err','C', 'C_err']

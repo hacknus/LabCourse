@@ -15,13 +15,8 @@ for i in np.arange(4):
     nois = pd.read_csv(r'{}GHZ\noise_load_after.csv'.format(i+16))
     U_nois = nois.v_val 
     U_hot_load = hot_load_after.v_val
-    print(nois.v_val)
-    print(hot_load_after.v_val)
     K = pd.read_csv(r'{}GHZ\K_and_C.csv'.format(i+16)).K
-    print(K)
     C = pd.read_csv(r'{}GHZ\K_and_C.csv'.format(i+16)).C
-    print(C)
-    print(C)
     T_nois[i] = T(U_nois,K,C)
     T_hot_load[i] = T(U_hot_load,K,C)
     T_diode = T_nois - T_hot_load
