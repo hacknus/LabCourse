@@ -27,6 +27,15 @@ def mat_temp(df, params):
     T_err = (C_err)**2 + (np.array(df.v_val)[0] * K_err)**2 + (K * np.array(df.v_std)[0])**2
     return T, np.sqrt(T_err)
 
+def sky_temp(df, params,k):
+    K = np.array(params.K)[0]
+    K_err = np.array(params.K_err)[0]
+    C = np.array(params.C)[0]
+    C_err = np.array(params.C_err)[0]
+    T = C + K*np.array(df.v_val)[k] - 273.15
+    T_err = (C_err)**2 + (np.array(df.v_val)[k] * K_err)**2 + (K * np.array(df.v_std)[k])**2
+    return T, np.sqrt(T_err)
+
 def get_materials():
     fig, (ax0, ax1) = plt.subplots(ncols=2)
 
