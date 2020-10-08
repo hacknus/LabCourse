@@ -28,7 +28,9 @@ def mat_temp(df, params):
     return T, np.sqrt(T_err)
 
 def get_materials():
-    for directory in ["16GHZ", "17GHZ", "18GHZ", "19GHZ"]:
+    fig, (ax0, ax1) = plt.subplots(ncols=2)
+
+    for directory, freq, c in zip(["16GHZ", "17GHZ", "18GHZ", "19GHZ"], np.arange(16.55+3.75, 23.75, 1), ['red', 'blue', 'green', 'orange']):
         params_df = read_file(directory + "/K_and_C.csv")
         print(directory)
         hand_df = read_file(directory + "/hand.csv")
@@ -65,6 +67,25 @@ def get_materials():
              }
         df = pd.DataFrame(data=d)
         df.to_csv(f"{directory}data.csv",index=0)
+
+        ax0.errorbar(0+freq/10, Thand, yerr=Thanderr, color=c, label=f"{freq} GHz", fmt='o', markeredgecolor ="black",ecolor='black', capthick=2,capsize=2, elinewidth=1, markeredgewidth=0.5,   ms=5)
+        ax0.errorbar(1+freq/10, Thand2, yerr=Thand2err, color=c, fmt='o', markeredgecolor ="black",ecolor='black', capthick=2 ,capsize=2, elinewidth=1, markeredgewidth=0.5,   ms=5)
+        ax0.errorbar(2+freq/10, Tbb, yerr=Tbberr, color=c, fmt='o', markeredgecolor ="black",ecolor='black', capthick=2 ,capsize=2, elinewidth=1, markeredgewidth=0.5,   ms=5)
+        ax1.errorbar(0+freq/10, Tbf, yerr=Tbferr, color=c, label=f"{freq} GHz", fmt='o', markeredgecolor ="black",ecolor='black', capthick=2 ,capsize=2, elinewidth=1, markeredgewidth=0.5,   ms=5)
+        ax1.errorbar(1+freq/10, Tcp, yerr=Tcperr, color=c, fmt='o', markeredgecolor ="black",ecolor='black', capthick=2 ,capsize=2, elinewidth=1, markeredgewidth=0.5,   ms=5)
+        ax1.errorbar(2+freq/10, Tac, yerr=Tacerr, color=c, fmt='o', markeredgecolor ="black",ecolor='black', capthick=2 ,capsize=2, elinewidth=1, markeredgewidth=0.5,   ms=5)
+    ax0.set_xticks(np.arange(3)+2.2)
+    ax0.set_xticklabels(["hand", "2 hands", "blackbody"])
+    ax1.set_xticks(np.arange(3)+2.2)
+    ax1.set_xticklabels(["blue foam", "cellphone", "acrylic"])
+    ax0.set_ylabel("T [°C]")
+    ax1.set_ylabel("T [°C]")
+    ax0.set_xlabel("material")
+    ax1.set_xlabel("material")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("materials.pdf")
+    plt.show()
 
 
 if __name__ == "__main__":
