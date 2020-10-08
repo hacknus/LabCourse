@@ -84,7 +84,6 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     rel_thickness = np.linspace(0, 4, 10)
     plt.plot(rel_thickness, 100*linear(rel_thickness, *popt), color=c, ls="--")
     print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
-    print("T_hand = {:.6f} +/- {:.6f}".format(T_hand - 273.15, T_hand_err))
     K = coefficient(U_hot,U_cold,T_hot,T_cold(T0, tau_i, T_m))
     dT_cold = T_cold_err(T0, tau_i, tau_err, T_m)
     K_err = coefficient_err(U_hot, dU_hot, U_cold, dU_cold, T_hot, dT_hot, T_cold(T0, tau_i, T_m), dT_cold)

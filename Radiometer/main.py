@@ -51,6 +51,13 @@ def get_materials():
         print("T_acrylic = {:.6f} +/- {:.6f}".format(T, Terr))
 
 
+        hl_df = read_file(directory + "/hot_load_after.csv")
+        ns_df = read_file(directory + "/noise_load_after.csv")
+        Tn, Tnerr = mat_temp(ns_df, params_df)
+        T, Terr = mat_temp(hl_df, params_df)
+        print("T_noise = {:.6f} +/- {:.6f}".format(Tn, Tnerr))
+        print("T_load = {:.6f} +/- {:.6f}".format(T, Terr))
+
 
 if __name__ == "__main__":
     get_materials()

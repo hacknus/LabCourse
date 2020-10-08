@@ -8,7 +8,7 @@ def T(U,K,c):
 
 
 T_freq = np.zeros(4)
-frequency= np.array([16, 17, 18, 19])+3.75+0.55
+frequency = np.array([16, 17, 18, 19])+3.75+0.55
 for i in np.arange(4):
     hot_load_after = pd.read_csv(r'{}GHZ\hot_load_after.csv'.format(i+16))
     nois = pd.read_csv(r'{}GHZ\noise_load_after.csv'.format(i+16))
@@ -24,4 +24,4 @@ plt.plot(frequency,T_freq,'bo')
 plt.xticks(frequency)
 plt.xlabel('frequency [GHz]')
 plt.ylabel('T [$K°$]')
-plt.show
+plt.show()
