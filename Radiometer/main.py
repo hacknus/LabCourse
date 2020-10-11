@@ -71,8 +71,8 @@ def get_materials():
 
         d = {
             "Material" : ["hand", "2 hands", "blackbody", "blue foam", "cellphone", "acrylic", "noise", "load"],
-            "T" : [Thand, Thand2, Tbb, Tbf, Tcp, Tac, Tn, T],
-            "Terr": [Thanderr, Thand2err, Tbberr, Tbferr, Tcperr, Tacerr, Tnerr, Terr]
+            "T" : [round(Thand,2), round(Thand2,2), round(Tbb,2), round(Tbf,2), round(Tcp,2), round(Tac,2), round(Tn,2), round(T,2)],
+            "Terr": [round(Thanderr,2), round(Thand2err,2), round(Tbberr,2), round(Tbferr,2), round(Tcperr,2), round(Tacerr,2), round(Tnerr,2), round(Terr,2)]
              }
         df = pd.DataFrame(data=d)
         df.to_csv(f"{directory}data.csv",index=0)
@@ -96,6 +96,21 @@ def get_materials():
     plt.savefig("materials.pdf")
     plt.show()
 
+    df16 = pd.read_csv("16GHZdata.csv")
+    df17 = pd.read_csv("17GHZdata.csv")
+    df18 = pd.read_csv("18GHZdata.csv")
+    df19 = pd.read_csv("19GHZdata.csv")
+
+    print(df16.head())
+
+    df = pd.concat([df16['Material'],df16['T'], df16['Terr'],df17['T'], df17['Terr'],df18['T'], df18['Terr'],df19['T'], df19['Terr']], axis=1, keys=['Material','T16', 'T16err','T17', 'T17err','T18', 'T18err','T19', 'T19err'])
+    print(df.index)
+    df = df.drop([df.index[6],df.index[7]])
+    df.to_csv("materials.csv", index=0)
+
+    df = pd.concat([df16['Material'],df16['T'], df16['Terr'],df17['T'], df17['Terr'],df18['T'], df18['Terr'],df19['T'], df19['Terr']], axis=1, keys=['Material','T16', 'T16err','T17', 'T17err','T18', 'T18err','T19', 'T19err'])
+    df = df.drop([df.index[0],df.index[1],df.index[2],df.index[3],df.index[4],df.index[5]])
+    df.to_csv("loads.csv", index=0)
 
 if __name__ == "__main__":
     get_materials()
