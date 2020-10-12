@@ -64,15 +64,18 @@ def get_materials():
 
         hl_df = read_file(directory + "/hot_load_after.csv")
         ns_df = read_file(directory + "/noise_load_after.csv")
+        ns_df_only= read_file(directory + "/diode_only.csv")
         Tn, Tnerr = mat_temp(ns_df, params_df)
         T, Terr = mat_temp(hl_df, params_df)
+        Tn_only, Tn_only_err = mat_temp(ns_df_only, params_df)
         print("T_noise = {:.6f} +/- {:.6f}".format(Tn, Tnerr))
         print("T_load = {:.6f} +/- {:.6f}".format(T, Terr))
+        print("T_noise_only = {:.6f} +/- {:.6f}".format(Tn_only, Tn_only_err))
 
         d = {
-            "Material" : ["hand", "2 hands", "blackbody", "blue foam", "cellphone", "acrylic", "noise", "load"],
-            "T" : [round(Thand,2), round(Thand2,2), round(Tbb,2), round(Tbf,2), round(Tcp,2), round(Tac,2), round(Tn,2), round(T,2)],
-            "Terr": [round(Thanderr,2), round(Thand2err,2), round(Tbberr,2), round(Tbferr,2), round(Tcperr,2), round(Tacerr,2), round(Tnerr,2), round(Terr,2)]
+            "Material" : ["hand", "2 hands", "blackbody", "blue foam", "cellphone", "acrylic", "noise and load", "load", "noise"],
+            "T" : [round(Thand,2), round(Thand2,2), round(Tbb,2), round(Tbf,2), round(Tcp,2), round(Tac,2), round(Tn,2), round(T,2),round(Tn_only,2)],
+            "Terr": [round(Thanderr,2), round(Thand2err,2), round(Tbberr,2), round(Tbferr,2), round(Tcperr,2), round(Tacerr,2), round(Tnerr,2), round(Terr,2),round(Tn_only_err,2)]
              }
         df = pd.DataFrame(data=d)
         df.to_csv(f"{directory}data.csv",index=0)
