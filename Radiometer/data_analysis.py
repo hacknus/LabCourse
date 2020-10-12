@@ -78,7 +78,7 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
 
         popt, pcov = curve_fit(linear, rel_thickness, taus, p0=[tau_i, 0])
         tau_i = popt[0]
-        tau_err = pcov[0][0]
+        tau_err = np.sqrt(pcov[0][0])
         offset = popt[1]
 
     T0 = 2.7

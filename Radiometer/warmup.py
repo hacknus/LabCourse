@@ -2,6 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+def mat_temp(df, params):
+    K = np.array(params.K)[0]
+    K_err = np.array(params.K_err)[0]
+    C = np.array(params.C)[0]
+    C_err = np.array(params.C_err)[0]
+    T = C + K*np.array(df.VDetector) - 273.15
+    T_err = (C_err)**2 + (np.array(df.VDetector) * K_err)**2 + (K * np.array(0.05))**2
+    return T, np.sqrt(T_err)
 
 
 if __name__ == "__main__":
@@ -13,4 +21,12 @@ if __name__ == "__main__":
     plt.xlabel(r'$t$ [s]')
     plt.ylabel(r'$U_{Detector}$ [V]')
     plt.savefig("warmup.pdf")
+    plt.show()
+
+    params_df = pd.read_csv("16GHZ/K_and_C.csv")
+    T, Terr = mat_temp(df, params_df)
+    plt.plot(t, T, color="black")
+    plt.xlabel(r'$t$ [s]')
+    plt.ylabel(r'$T$ [C]')
+    plt.savefig("warmup_temperature.pdf")
     plt.show()
