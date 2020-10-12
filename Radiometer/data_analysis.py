@@ -36,6 +36,14 @@ def linear(t, m, b):
 
 OS = platform.system()
 
+
+K_array=np.zeros(4)
+K_err_array=np.zeros(4)
+C_array=np.zeros(4)
+C_err_array=np.zeros(4)
+tau_array=np.zeros(4)
+tau_err_array=np.zeros(4)
+
 for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
 
     print("calculating frequency = {} GHZ".format(freq))
@@ -76,33 +84,53 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     T0 = 2.7
     T_m = 16 - 10 + 273.15
 
-    T_hand = (np.array(hand.v_val)[0] - U_hot) / (U_hot - U_cold) * (T_hot - T_cold(T0, tau_i, T_m)) + T_hot
-    T_hand_err = 5
-
 
     plt.plot(rel_thickness, 100*taus, label="{} GHZ".format(freq+3.75+0.55), color=c)
     rel_thickness = np.linspace(0, 4, 10)
     plt.plot(rel_thickness, 100*linear(rel_thickness, *popt), color=c, ls="--")
     print("tau = {:.6f} +/- {:.6f}".format(tau_i, tau_err))
+    
     K = coefficient(U_hot,U_cold,T_hot,T_cold(T0, tau_i, T_m))
     dT_cold = T_cold_err(T0, tau_i, tau_err, T_m)
     K_err = coefficient_err(U_hot, dU_hot, U_cold, dU_cold, T_hot, dT_hot, T_cold(T0, tau_i, T_m), dT_cold)
     C = T_offset(U_hot,T_hot,K)
     C_err = T_offset_err(U_hot, dU_hot, dT_hot, K, K_err)
-    if OS == "Windows":
-        with open('{}GHZ\K_and_C.csv'.format(freq), 'w', newline='') as csvfile:
-            fieldnames = ['K', 'K_err','C', 'C_err']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerow({'K':K , 'K_err': K_err, 'C': C, 'C_err': C_err})
-    else:
-        with open('{}GHZ/K_and_C.csv'.format(freq), 'w', newline='') as csvfile:
-            fieldnames = ['K', 'K_err','C', 'C_err']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerow({'K':K , 'K_err': K_err, 'C': C, 'C_err': C_err})
+    
+    i=freq-16
+    K_array[i]=K
+    K_err_array[i]=K_err
+    C_array[i]=C
+    C_err_array[i]=C_err
+    tau_array[i]=tau_i
+    tau_err_array[i]=tau_err
+    
 plt.xlabel('frequency [GHz]')   
 plt.xlabel("rel. thickness [-]")
 plt.ylabel("opacity [-]")
 plt.legend()
+plt.savefig("tau.pdf")
 plt.show()
+    
+for i in np.arange(4):
+    if OS == "Windows":
+        with open('{}GHZ\K_and_C.csv'.format(i+16), 'w', newline='') as csvfile:
+            fieldnames = ['K', 'K_err','C', 'C_err']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow({'K':K_array[i] , 'K_err': K_err_array[i], 'C': C_array[i], 'C_err': C_err_array[i]})
+    else:
+        with open('{}GHZ/K_and_C.csv'.format(i+16), 'w', newline='') as csvfile:
+            fieldnames = ['K', 'K_err','C', 'C_err']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow({'K':K_array[i] , 'K_err': K_err_array[i], 'C': C_array[i], 'C_err': C_err_array[i]})
+        
+with open('K_and_C_table.csv', 'w', newline='') as csvfile:
+    fieldnames = ['freq','tau','tau_err','K', 'K_err','C', 'C_err']       
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for i in np.arange(4):
+        writer.writerow({'freq':(np.array([16,17,18,19])+4.3)[i],'tau':tau_array[i],'tau_err':tau_err_array[i],'K':K_array[i] , 'K_err': K_err_array[i], 'C': C_array[i]-273.15, 'C_err': C_err_array[i]})
+        
+       
+
