@@ -17,16 +17,19 @@ if __name__ == "__main__":
     filename = "data/dataset{:03d}.csv".format(1)
     df = pd.read_csv(filename, header=0)
     t = np.arange(len(df))/2
-    plt.plot(t, df.VDetector, color="black")
-    plt.xlabel(r'$t$ [s]')
-    plt.ylabel(r'$U_{Detector}$ [V]')
-    plt.savefig("warmup.pdf")
-    plt.show()
+    #plt.plot(t, df.VDetector, color="black")
+    #plt.xlabel(r'$t$ [s]')
+    #plt.ylabel(r'$U_{Detector}$ [V]')
+    #plt.savefig("warmup.pdf")
+    #plt.show()
 
-    params_df = pd.read_csv("16GHZ/K_and_C.csv")
+    params_df = pd.read_csv("18GHZ/K_and_C.csv")
     T, Terr = mat_temp(df, params_df)
+    print(Terr, T)
     plt.plot(t, T, color="black")
     plt.xlabel(r'$t$ [s]')
     plt.ylabel(r'$T$ [C]')
     plt.savefig("warmup_temperature.pdf")
     plt.show()
+
+
