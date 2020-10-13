@@ -19,7 +19,7 @@ def tau(U_theta, U_cold, U_hot, T_hot, tau_i):
     return np.log((T_m - T0) / (T_m - T_theta))
 
 def coefficient(U_hot,U_cold,T_hot,T_cold):
-    return (T_hot-T_cold + 273.15)/(U_hot-U_cold)
+    return (T_hot-T_cold)/(U_hot-U_cold)
 
 def coefficient_err(U_hot, dU_hot, U_cold, dU_cold, T_hot, dT_hot, T_cold, dT_cold):
     return np.sqrt( (dT_hot / (U_hot-U_cold)) ** 2 + ( dT_cold /(U_hot-U_cold)) ** 2 + ((T_hot-T_cold)/(U_hot-U_cold)**2*dU_hot**2) + ((T_hot-T_cold)/(U_hot-U_cold)**2*dU_cold**2))
