@@ -107,14 +107,8 @@ for k in np.arange(6):
     for j in np.arange(4):
         t_err[k][j] = trans_err(tau[k][j],tau_err[k][j])
 
-for k in np.arange(6):
-    for j in np.arange(4):
-        e[k][j]= emis(T_out[k][j],T_in[j],T_mat[k],t[k][j])
-
-for k in np.arange(6):
-    for j in np.arange(4):
-        e_err[k][j]= emis_err(T_out[k][j],T_out_err[k][j],t[k][j],t_err[k][j],T_in[j],T_in_err[j],T_mat[k],T_mat_err[k])
-        
+e = np.ones((6,4))-t
+e_err=t_err
 
 print(e)
 print(e_err)
