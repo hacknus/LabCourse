@@ -105,8 +105,8 @@ for freq, c in zip([16, 17, 18, 19], ['red', 'blue', 'green', 'orange']):
     tau_err_array[i]=tau_err
     
 plt.xlabel('frequency [GHz]')   
-plt.xlabel("rel. thickness [-]")
-plt.ylabel("opacity [-]")
+plt.xlabel("airmass factor [-]")
+plt.ylabel("optical depth [-]")
 plt.legend()
 plt.savefig("tau.pdf")
 plt.show()
