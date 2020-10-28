@@ -35,13 +35,13 @@ def run(number_t,delta_t,max_t,number_z,delta_z,max_z,A,C,initial,source,name):
 a = 23*1e-7   #  23*1e-6 is Thermal diffusivity of iron [m^2/s]
 
 #resolution
-number_t = 1000
 max_t = 60*5       #[s]
 max_z = 0.21         # [m]     
+number_z=1000
 
-delta_t = max_t/number_t
-delta_z = np.sqrt(2*delta_t*a) #stability 
-number_z = int(math.floor(max_z/delta_z)) #due to stability
+delta_z = max_z/number_z
+delta_t = delta_z**2*2/a #stability 
+number_t = int(math.floor(max_t/delta_t)) #due to stability
 
 
 #settings:
