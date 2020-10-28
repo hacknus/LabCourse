@@ -74,14 +74,14 @@ def source(number_z,delta_z,f0,tau,c2,boundary):
 a = 23*1e-7   #  23*1e-6 is Thermal diffusivity of iron [m^2/s]
 r = 0.25
 
-#settings
-number_t = 100
-max_t = 60     #[s]
-max_z = 0.20         # [m]    
+#resolution
+max_t = 60*5       #[s]
+max_z = 0.21         # [m]     
+number_z=100
 
-delta_t = max_t/number_t
-delta_z = np.sqrt(delta_t*a/r) #stability 
-number_z = int(math.floor(max_z/delta_z)) #due to stability crit
+delta_z = max_z/number_z
+delta_t = delta_z**2*2/a #stability 
+number_t = int(math.floor(max_t/delta_t)) #due to stability
 
 #boundary
 const_dirichlet=1 #dirichlet
