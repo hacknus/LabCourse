@@ -19,12 +19,12 @@ def plot(T,name):
     plt.show() 
 
     
-def run(number_t,delta_t,max_t,number_z,delta_z,max_z,A,C,T0,f0,name):        
+def run(number_t,delta_t,max_t,number_z,delta_z,max_z,A,C,initial,source,name):        
     T=np.zeros((number_t,number_z))
-    T[0]=T0    
+    T[0]=initial    
     #Solving the linear equation sistem for each time step
     for i in np.arange(number_t-1):
-        T[i+1]=np.dot(A,T[i])+C+f0[i]
+        T[i+1]=np.dot(A,T[i])+C+source[i]
     T=np.transpose(T)
     plot(T,name)
   
