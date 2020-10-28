@@ -97,7 +97,8 @@ c1=0
 tau = max_z/3
 f0=0
 c2=0
-  
+
+#exercise 5  
 dirichlet(number_t,number_z,initial(number_z,delta_z,u0,std,c1,'Dirichlet'),source(number_z,delta_z,f0,tau,c2,'Dirichlet'),const_dirichlet)
 periodic(number_t,number_z,initial(number_z,delta_z,u0,std,c1,'Periodic'),source(number_z,delta_z,f0,tau,c2,'Periodic'))
 kochtopf(number_t,number_z,initial(number_z,delta_z,0,std,273+30,'Kochtopf'),source(number_z,delta_z,0,tau,c2,'Kochtopf'),deckel,platte)
