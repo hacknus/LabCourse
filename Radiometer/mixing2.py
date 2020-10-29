@@ -16,7 +16,7 @@ amplitude_no_wifi = gauss(1,22,omega) + 30*gauss(40,80,omega)
 
 omega2 = 18.55
 samplingFreq = 1000
-t = np.arange(0, 10, 1/samplingFreq)
+t = np.arange(0, 30, 1/samplingFreq)
 
 RF = np.sum(amplitude[:,None]*np.cos(2*np.pi*omega[:,None] * t),axis=0)
 
@@ -30,7 +30,7 @@ fig, (ax1, ax2, ax3) = plt.subplots(3)
 
 ax1.plot(t,RF/len(amplitude)*10,label="RF")
 #ax1.plot(t[::2],np.sum(IF*np.cos(2*np.pi*frequencies3 * t[:,None]),axis=0))
-ax1.set_xlim(0,2)
+ax1.set_xlim(0,30)
 ax1.set_ylabel("Amplitude [-]")
 ax1.set_xlabel(r"t [$10^{-9}$s]")
 ax1.legend(loc="upper right")
