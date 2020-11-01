@@ -20,7 +20,7 @@ omega = c * l ** 2 * r / (32 * np.pi * A * d)
 slope = 4*A/(l*L*360)
 slope_err = 1/(360*np.sqrt(3)*l)*0.01
 print(f"Lock frequency: {omega:.4f}")
-print(f"slope: {slope:.4f}")
+print(f"slope: {slope:.4f} +/- {slope_err:.4f}")
 
 df01 = pd.read_csv("0_1.txt", names=["v", "f", "err"])
 df1 = pd.read_csv("1.txt", names=["v", "f", "err"])
@@ -34,13 +34,13 @@ fig, ax = plt.subplots(1)
 # drop all values that don't make sense, drop all values where frequency = 0
 # because there std is also = 0, thus making the weight infinite
 v1 = df1.v
-mask = (v1 < 3) & (v1 > 0) & (df1.f != 0)
+mask = (v1 < 3) & (v1 > -3) & (df1.f != 0)
 v1 = v1[mask]
 f1 = np.array(df1.f)[mask]
 err1 = np.array(df1.err)[mask]
 
 popt1, pcov1 = curve_fit(linear, v1, f1, sigma=err1, absolute_sigma=True)
-ax.plot(df1.v, linear(df1.v, *popt1), color="red", ls="--", label="Best fit")
+ax.plot(v1, linear(v1, *popt1), color="red", ls="-", label="Best fit")
 
 ax.plot(df1.v, linear(df1.v, slope, popt1[1]), color="blue", ls="--", label="Literature")
 ax.fill_between(df1.v, linear(df1.v, slope - slope_err, popt1[1]), linear(df1.v, slope + slope_err, popt1[1]),
@@ -60,7 +60,7 @@ print(f"offset = ({popt1[1]:.2f} +/- {np.sqrt(pcov1[1][1]):.2f}) krad/s")
 ax.set_xlabel(r"$v$ [°/s]")
 ax.set_ylabel(r"$f$ [Hz]")
 ax.set_xlim(-2.1, 2.1)
-ax.set_ylim(-2700, 2700)
+ax.set_ylim(-2500, 2500)
 plt.legend()
 plt.savefig("Report/plots/slope.pdf")
 plt.show()
