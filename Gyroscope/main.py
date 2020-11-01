@@ -34,7 +34,15 @@ fig, ax = plt.subplots(1)
 # drop all values that don't make sense, drop all values where frequency = 0
 # because there std is also = 0, thus making the weight infinite
 v1 = df1.v
-mask = (v1 < 3) & (v1 > -3) & (df1.f != 0)
+
+mode = -1
+if mode == 0:
+    mask = (v1 < 3) & (v1 > -3) & (df1.f != 0)
+elif mode == 1:
+    mask = (v1 < 3) & (v1 > -0) & (df1.f != 0)
+elif mode == -1:
+    mask = (v1 < 0) & (v1 > -3) & (df1.f != 0)
+
 v1 = v1[mask]
 f1 = np.array(df1.f)[mask]
 err1 = np.array(df1.err)[mask]
@@ -57,10 +65,23 @@ print(popt1)
 print(f"slope = ({popt1[0]:.2f} +/- {np.sqrt(pcov1[0][0]):.2f}) krad/deg")
 print(f"offset = ({popt1[1]:.2f} +/- {np.sqrt(pcov1[1][1]):.2f}) krad/s")
 
-ax.set_xlabel(r"$v$ [°/s]")
+ax.set_xlabel(r"$\omega$ [°/s]")
 ax.set_ylabel(r"$f$ [Hz]")
-ax.set_xlim(-2.1, 2.1)
-ax.set_ylim(-2500, 2500)
+if mode == 0:
+    ax.set_xlim(-2.1, 2.1)
+    ax.set_ylim(-2700, 2700)
+elif mode == 1:
+    ax.set_xlim(0, 2.1)
+    ax.set_ylim(-100, 2500)
+elif mode == -1:
+    ax.set_xlim(-2.1, 0)
+    ax.set_ylim(-2500, 100)
 plt.legend()
-plt.savefig("Report/plots/slope.pdf")
+if mode == 0:
+    plt.savefig("Report/plots/slope.pdf")
+elif mode == 1:
+    plt.savefig("Report/plots/slope_pos.pdf")
+elif mode == -1:
+    plt.savefig("Report/plots/slope_neg.pdf")
+
 plt.show()
