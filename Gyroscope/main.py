@@ -35,11 +35,11 @@ fig, ax = plt.subplots(1)
 # because there std is also = 0, thus making the weight infinite
 v1 = df1.v
 
-mode = -1
+mode = 0
 if mode == 0:
     mask = (v1 < 3) & (v1 > -3) & (df1.f != 0)
 elif mode == 1:
-    mask = (v1 < 3) & (v1 > -0) & (df1.f != 0)
+    mask = (v1 < 3) & (v1 > 0) & (df1.f != 0)
 elif mode == -1:
     mask = (v1 < 0) & (v1 > -3) & (df1.f != 0)
 
@@ -59,7 +59,12 @@ ax.axvline(-omega, color='orange')
 
 ax.errorbar(df1.v, df1.f, yerr=df1.err, color="red", label="LabView Data", fmt='o', markeredgecolor="black",
             ecolor='black', capthick=2, capsize=2, elinewidth=1, markeredgewidth=0.5, ms=3)
-
+d = {"v" : v1,
+     "f1" : f1,
+     "f1_err": err1
+     }
+df = pd.DataFrame(data=d)
+df.to_csv("data.dat", index=0)
 print("\ndt = 1 ms on oscilloscope:")
 print(popt1)
 print(f"slope = ({popt1[0]:.2f} +/- {np.sqrt(pcov1[0][0]):.2f}) krad/deg")
