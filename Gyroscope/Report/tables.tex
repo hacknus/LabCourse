@@ -2,12 +2,12 @@
     \begin{table}[h!]
       \begin{center}
       \DTLsetseparator{,}
-        \DTLloaddb[keys={omega,f,err}{dat}{data.dat}
-        \begin{tabular}{l|c}
-            \toprule $\omega [\si{\deg\per\second}]$ & $f [\si{\hertz}]$
-            \DTLforeach{dat}{\o=omega,\a=T16,\f=f,\err=err}
+        \DTLloaddb[keys={omega,f,err}]{dat}{data.dat}
+        \begin{tabular}{c|c}
+            \toprule $\omega$ [\si{\deg\per\second}] & $f$ [\si{\hertz}]
+            \DTLforeach{dat}{\o=omega,\f=f,\err=err}
             {\DTLiffirstrow{\\ \midrule}{\\}
-            \o & \pgfmathprintnumber[textnumber]\f~$\pm$~\pgfmathprintnumber[textnumber]\ferr }
+            \o & \pgfmathprintnumber[textnumber]\f~$\pm$~\pgfmathprintnumber[textnumber]\err }
             \\\bottomrule
         \end{tabular}
         \caption{Data}
