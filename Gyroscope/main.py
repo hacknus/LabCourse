@@ -10,16 +10,20 @@ def linear(x, m, b):
 
 l = 633 * 1e-9
 c = 299792458.0
-r = 10e-2
+r = 1e-2
 s = 0.4
 A = s ** 2 / 4 * np.sqrt(3)
 d = 0.001
 L = s*3
 
 omega = c * l ** 2 * r / (32 * np.pi * A * d)
+omega_err = np.sqrt((-(c*l**2*r)/(4*np.sqrt(3)*d*np.pi*s**3)*0.01)**2+(-(c*l**2*r)/(8*np.sqrt(3)*np.pi*s**2*d**2)*0.0005)**2)
+omega = omega / (2*np.pi) * 1000
+omega_err = omega_err / (2*np.pi) * 1000
+
 slope = 4*A/(l*L*360)
 slope_err = 1/(360*np.sqrt(3)*l)*0.01
-print(f"Lock frequency: {omega:.4f}")
+print(f"Lock frequency: {omega:.4f} +/- {omega_err:.4f}")
 print(f"slope: {slope:.4f} +/- {slope_err:.4f}")
 
 df01 = pd.read_csv("0_1.txt", names=["v", "f", "err"])
@@ -59,12 +63,13 @@ ax.axvline(-omega, color='orange')
 
 ax.errorbar(df1.v, df1.f, yerr=df1.err, color="red", label="LabView Data", fmt='o', markeredgecolor="black",
             ecolor='black', capthick=2, capsize=2, elinewidth=1, markeredgewidth=0.5, ms=3)
-d = {"v" : v1,
-     "f1" : f1,
-     "f1_err": err1
-     }
-df = pd.DataFrame(data=d)
-df.to_csv("data.dat", index=0)
+if mode == 0:
+    d = {"v" : v1,
+         "f1" : f1,
+         "f1_err": err1
+         }
+    df = pd.DataFrame(data=d)
+    df.to_csv("Report/data.dat", index=0)
 print("\ndt = 1 ms on oscilloscope:")
 print(popt1)
 print(f"slope = ({popt1[0]:.2f} +/- {np.sqrt(pcov1[0][0]):.2f}) krad/deg")
