@@ -42,7 +42,27 @@
 
 \renewcommand*{\arraystretch}{1.3} % grössere Abstände in pmatrix
 
+\usetikzlibrary{arrows,chains,matrix,positioning,scopes}
 
+
+\tikzset{
+ 	>=triangle 45,
+ 	pos=.8,
+ 	photon/.style={decorate, thick,decoration={snake,segment length=5,post length=1mm,pre length = 1mm}},
+	gluon/.style={decorate, thick, draw=black,
+    		decoration={coil,amplitude=4pt, segment length=5pt,post length=1mm,pre length = 1mm}
+	},
+        particle/.style={ thick,
+        postaction={decorate,
+                    decoration={markings,mark=at position  0.5 with {\arrow[xshift=2pt +3\pgflinewidth]{<}}}
+                   }
+        },
+        antiparticle/.style={ thick,
+        postaction={decorate,
+                    decoration={markings,mark=at position  0.5 with {\arrow[xshift=2pt +3\pgflinewidth]{>}}}
+                   }
+        }
+}
 
 
 
