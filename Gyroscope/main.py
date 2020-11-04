@@ -39,7 +39,7 @@ fig, ax = plt.subplots(1)
 # because there std is also = 0, thus making the weight infinite
 v1 = df1.v
 
-mode = 0
+mode = -1
 if mode == 0:
     mask = (v1 < 3) & (v1 > -3) & (df1.f != 0)
 elif mode == 1:
@@ -75,7 +75,7 @@ print(popt1)
 print(f"slope = ({popt1[0]:.2f} +/- {np.sqrt(pcov1[0][0]):.2f}) krad/deg")
 print(f"offset = ({popt1[1]:.2f} +/- {np.sqrt(pcov1[1][1]):.2f}) krad/s")
 
-ax.set_xlabel(r"$\omega$ [°/s]")
+ax.set_xlabel(r"$\Omega$ [°/s]")
 ax.set_ylabel(r"$f$ [Hz]")
 if mode == 0:
     ax.set_xlim(-2.1, 2.1)
