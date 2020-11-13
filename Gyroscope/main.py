@@ -39,7 +39,7 @@ fig, ax = plt.subplots(1)
 # because there std is also = 0, thus making the weight infinite
 v1 = df1.v
 
-mode = -1
+mode = 0
 if mode == 0:
     mask = (v1 < 3) & (v1 > -3) & (df1.f != 0)
 elif mode == 1:
@@ -51,7 +51,7 @@ v1 = v1[mask]
 f1 = np.array(df1.f)[mask]
 err1 = np.array(df1.err)[mask]
 
-popt1, pcov1 = curve_fit(linear, v1, f1, sigma=err1, absolute_sigma=True)
+popt1, pcov1 = curve_fit(linear, v1, f1)#, sigma=err1, absolute_sigma=True)
 ax.plot(v1, linear(v1, *popt1), color="red", ls="-", label="Best fit")
 
 ax.plot(df1.v, linear(df1.v, slope, popt1[1]), color="blue", ls="--", label="Literature")
